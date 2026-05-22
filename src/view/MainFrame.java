@@ -1,33 +1,138 @@
 package view;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
+import model.Task;
+import java.util.ArrayList;
 
 public class MainFrame extends JFrame {
     JTextField taskField;
     JButton addButton;
     JTextArea taskArea;
+    JButton deleteButton;
+    JButton completeButton;
+    JButton updateButton;
+    JTable taskTable;
+    DefaultTableModel tableModel;
+    ArrayList<Task> taskList;
 
     public MainFrame() {
         setTitle("Todo App");
-        setSize(600, 400);
+        setSize(700, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new FlowLayout());
-        taskField = new JTextField(20);
+        setLayout(new BorderLayout());
+        taskList = new ArrayList<>();
+
+        taskField = new JTextField(25);
         addButton = new JButton("Add Task");
-        taskArea = new JTextArea(20, 30);
-        taskArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(taskArea);
-        add(taskField);
-        add(addButton);
-        add(scrollPane);
+        deleteButton = new JButton("Delete Task");
+        completeButton = new JButton("Complete Task");
+        updateButton = new JButton("Update Task");
+
+        String[] columnNames = { "Task", "Status" };
+        tableModel = new DefaultTableModel(columnNames, 0);
+        taskTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(taskTable);
+
+        Panel topPanel = new Panel();
+        topPanel.add(taskField);
+
+        Panel bottomPanel = new Panel();
+        bottomPanel.add(addButton);
+        bottomPanel.add(deleteButton);
+        bottomPanel.add(completeButton);
+        bottomPanel.add(updateButton);
+
+        add(topPanel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        getContentPane().setBackground(Color.WHITE);
+        addButton.setBackground(new Color(52, 152, 219));
+        deleteButton.setBackground(new Color(241, 196, 15));
+        completeButton.setBackground(new Color(46, 204, 113));
+        updateButton.setBackground(new Color(231, 76, 60));
+
+        addButton.setForeground(Color.WHITE);
+        deleteButton.setForeground(Color.WHITE);
+        completeButton.setForeground(Color.WHITE);
+        updateButton.setForeground(Color.WHITE);
+
+        addButton.setFocusPainted(false);
+        updateButton.setFocusPainted(false);
+        completeButton.setFocusPainted(false);
+        deleteButton.setFocusPainted(false);
+
+        Font font = new Font("Arial", Font.BOLD, 16);
+        taskField.setFont(font);
+        taskTable.setFont(font);
+        addButton.setFont(font);
+        deleteButton.setFont(font);
+        completeButton.setFont(font);
+        updateButton.setFont(font);
+
+        taskTable.setRowHeight(30);
+
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String Task = taskField.getText();
-                taskArea.append(Task + "\n");
+                String taskName = taskField.getText();
+
+                if (taskName.isEmpty()) {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Please enter a task!");
+                } else {
+                    tableModel.addRow(new Object[] { taskName, "Pending" });
+                    Task taskObject = new Task(taskName, "Pending");
+                    taskList.add(taskObject);
+                    taskField.setText("");
+                }
+
+            }
+        });
+        deleteButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = taskTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    tableModel.removeRow(selectedRow);
+                    taskList.remove(selectedRow);
+                }
+            }
+        });
+        completeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = taskTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    tableModel.setValueAt("Completed", selectedRow, 1);
+                    taskList.get(selectedRow).setStatus("Completed");
+                }
+            }
+        });
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = taskTable.getSelectedRow();
+                String updatedTask = taskField.getText();
+
+                if (selectedRow != -1) {
+                    tableModel.setValueAt(updatedTask, selectedRow, 0);
+                    taskList.get(selectedRow).setName(updatedTask);
+                }
+            }
+        });
+        taskTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int selectedRow = taskTable.getSelectedRow();
+                String task = tableModel.getValueAt(selectedRow, 0).toString();
+                taskField.setText(task);
             }
         });
         setVisible(true);
