@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import model.Task;
 import java.util.ArrayList;
+import controller.TaskController;
+import model.Task;
 
 public class MainFrame extends JFrame {
     JTextField taskField;
@@ -17,6 +19,7 @@ public class MainFrame extends JFrame {
     JTable taskTable;
     DefaultTableModel tableModel;
     ArrayList<Task> taskList;
+    TaskController controller;
 
     public MainFrame() {
         setTitle("Todo App");
@@ -25,6 +28,7 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         taskList = new ArrayList<>();
+        controller = new TaskController();
 
         taskField = new JTextField(25);
         addButton = new JButton("Add Task");
@@ -36,6 +40,11 @@ public class MainFrame extends JFrame {
         tableModel = new DefaultTableModel(columnNames, 0);
         taskTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(taskTable);
+
+        for (Task task : controller.loadTasksFromDatabase()) {
+            tableModel.addRow(new Object[] { task.getName(), task.getStatus() });
+            controller.addTask(task);
+        }
 
         Panel topPanel = new Panel();
         topPanel.add(taskField);
@@ -88,7 +97,8 @@ public class MainFrame extends JFrame {
                 } else {
                     tableModel.addRow(new Object[] { taskName, "Pending" });
                     Task taskObject = new Task(taskName, "Pending");
-                    taskList.add(taskObject);
+                    controller.addTask(taskObject);
+                    controller.saveTaskToDatabase(taskObject);
                     taskField.setText("");
                 }
 
@@ -101,7 +111,7 @@ public class MainFrame extends JFrame {
                 int selectedRow = taskTable.getSelectedRow();
                 if (selectedRow != -1) {
                     tableModel.removeRow(selectedRow);
-                    taskList.remove(selectedRow);
+                    controller.deleteTask(selectedRow);
                 }
             }
         });
@@ -111,7 +121,7 @@ public class MainFrame extends JFrame {
                 int selectedRow = taskTable.getSelectedRow();
                 if (selectedRow != -1) {
                     tableModel.setValueAt("Completed", selectedRow, 1);
-                    taskList.get(selectedRow).setStatus("Completed");
+                    controller.completeTask(selectedRow);
                 }
             }
         });
@@ -123,7 +133,7 @@ public class MainFrame extends JFrame {
 
                 if (selectedRow != -1) {
                     tableModel.setValueAt(updatedTask, selectedRow, 0);
-                    taskList.get(selectedRow).setName(updatedTask);
+                    controller.updateTask(selectedRow, updatedTask);
                 }
             }
         });
