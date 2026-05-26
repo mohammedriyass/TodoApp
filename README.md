@@ -24,7 +24,8 @@ Columns:
 - task_name
 - status
 
-Screen Shots
+## ScreenShots:
+
 <img width="681" height="392" alt="Screenshot 2026-05-26 181247" src="https://github.com/user-attachments/assets/3d31f2aa-ab79-436e-9f32-e3a3dd933615" />
 
 <img width="681" height="394" alt="Screenshot 2026-05-26 181642" src="https://github.com/user-attachments/assets/368965fa-4e90-466c-bc2c-2656f7166b0d" />
