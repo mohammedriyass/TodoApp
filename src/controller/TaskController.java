@@ -60,6 +60,10 @@ public class TaskController {
                 int id = rs.getInt("id");
                 String name = rs.getString("task_name");
                 String status = rs.getString("status");
+                System.out.println(
+                        "DB -> id=" + id +
+                                ", name=" + name +
+                                ", status=" + status);
                 tasks.add(new Task(id, name, status));
             }
             connection.close();
@@ -68,5 +72,48 @@ public class TaskController {
 
         }
         return tasks;
+    }
+
+    public void deleteTaskFromDatabase(int id) {
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            String sql = "DELETE FROM tasks WHERE id = ?";
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setInt(1, id);
+            int rows = pst.executeUpdate();
+            connection.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void completeTaskInDatabase(int id) {
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            String sql = "UPDATE tasks SET status=? WHERE id = ?";
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setString(1, "Completed");
+            pst.setInt(2, id);
+            pst.executeUpdate();
+            connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateTaskInDatabase(int id, String newName) {
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            String sql = "UPDATE tasks SET task_name=? WHERE id = ?";
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setString(1, newName);
+            pst.setInt(2, id);
+            pst.executeUpdate();
+            connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

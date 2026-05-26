@@ -110,8 +110,10 @@ public class MainFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = taskTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    tableModel.removeRow(selectedRow);
+                    Task task = controller.getTaskList().get(selectedRow);
+                    controller.deleteTaskFromDatabase(task.getId());
                     controller.deleteTask(selectedRow);
+                    tableModel.removeRow(selectedRow);
                 }
             }
         });
@@ -120,8 +122,10 @@ public class MainFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = taskTable.getSelectedRow();
                 if (selectedRow != -1) {
+                    Task task = controller.getTaskList().get(selectedRow);
+                    controller.completeTaskInDatabase(task.getId());
                     tableModel.setValueAt("Completed", selectedRow, 1);
-                    controller.completeTask(selectedRow);
+
                 }
             }
         });
@@ -132,6 +136,9 @@ public class MainFrame extends JFrame {
                 String updatedTask = taskField.getText();
 
                 if (selectedRow != -1) {
+                    Task task = controller.getTaskList().get(selectedRow);
+                    controller.updateTaskInDatabase(task.getId(), updatedTask);
+
                     tableModel.setValueAt(updatedTask, selectedRow, 0);
                     controller.updateTask(selectedRow, updatedTask);
                 }
